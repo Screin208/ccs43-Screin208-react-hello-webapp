@@ -1,130 +1,131 @@
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
-      Planets: [],
-      DetallesP: [],
-      Characters: [],
-      Detalles: [],
-      listado: [],
-      contador: 0,
+      demo: [
+        {
+          title: "FIRST",
+          background: "white",
+          initial: "white",
+        },
+        {
+          title: "SECOND",
+          background: "white",
+          initial: "white",
+        },
+      ],
+      people: [],
+      planets: [],
+      vehicles: [],
+      favorites: [],
     },
     actions: {
       // Use getActions to call a function within a fuction
-      getCharacters: async () => {
-        try {
-          const url = "https://swapi.tech/api";
-          const options = {
-            method: "GET",
-            headers: {
-              "Content-type": "Application/json",
-            },
-          };
-          const respond = await fetch(url + "/people/", options);
-          console.log(respond);
-
-          const body = await respond.json();
-          //console.log(body);
-
-          for (let valor of body.results) {
-            getActions().getDetalles(valor.uid);
-          }
-          setStore({ Characters: body.results });
-        } catch (error) {
-          console.log(error);
-        }
+      exampleFunction: () => {
+        getActions().changeColor(0, "green");
       },
-      getDetalles: async (id) => {
-        try {
-          const url = "https://swapi.tech/api";
-          const options = {
-            method: "GET",
-            headers: {
-              "Content-type": "Application/json",
-            },
-          };
-          const respond = await fetch(url + "/people/" + id, options);
-          console.log(respond);
-
-          const body = await respond.json();
-          console.log("funcion getDetalle", body);
-
-          setStore({ Detalles: [...getStore().Detalles, body.result] });
-        } catch (error) {
-          console.log(error);
-        }
+      loadSomeData: () => {
+        /**
+					fetch().then().then(data => setStore({ "foo": data.bar }))
+				*/
       },
+      changeColor: (index, color) => {
+        //get the store
+        const store = getStore();
 
-      getDetallado: (id) => {
-        let store = getStore();
-        let a = store.Detalles.filter((item) => item.uid == id)[0];
-        return a ? a : {};
-      },
-
-      getPlanets: async () => {
-        try {
-          const url = "https://swapi.tech/api";
-          const options = {
-            method: "GET",
-            headers: {
-              "Content-type": "Application/json",
-            },
-          };
-          const respond = await fetch(url + "/planets/", options);
-          console.log(respond);
-
-          const body = await respond.json();
-          //console.log(body);
-
-          for (let valor of body.results) {
-            getActions().getDetallesP(valor.uid);
-          }
-          setStore({ Planets: body.results });
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      getDetallesP: async (id) => {
-        try {
-          const url = "https://swapi.tech/api";
-          const options = {
-            method: "GET",
-            headers: {
-              "Content-type": "Application/json",
-            },
-          };
-          const respond = await fetch(url + "/planets/" + id, options);
-          //console.log(respond)
-
-          const body = await respond.json();
-          console.log("funcion getDetalle2", body);
-
-          setStore({ DetallesP: [...getStore().DetallesP, body.result] });
-        } catch (error) {
-          console.log(error);
-        }
-      },
-
-      getDetalladoP: (id) => {
-        let store = getStore();
-        let a2 = store.DetallesP.filter((item) => item.uid == id)[0];
-        return a2 ? a2 : {};
-      },
-
-      agregado: (nombre) => {
-        if (getStore().listado.includes(nombre) == false) {
-          setStore({ listado: [...getStore().listado, nombre] });
-          getStore().contador++;
-        }
-      },
-      eliminado: (nombre) => {
-        setStore({
-          listado: getStore().listado.filter((item) => item != nombre),
+        //we have to loop the entire demo array to look for the respective index
+        //and change its color
+        const demo = store.demo.map((elm, i) => {
+          if (i === index) elm.background = color;
+          return elm;
         });
-        getStore().contador--;
+
+        //reset the global store
+        setStore({ demo: demo });
       },
 
-      boton: (nombre) => {
-        return getStore().listado.includes(nombre);
+      // TRAE INFORMACION DE LOS PLANETAS
+      getPlanets: async () => {
+        const store = getStore();
+        const url = "https://www.swapi.tech/api/planets/";
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+          });
+          if (response.ok) {
+            const body = await response.json();
+            body.results.forEach(async (element) => {
+              let responseElement = await fetch(url + element.uid);
+              let responseJason = await responseElement.json();
+              /* console.log(responseJason.result.properties); */
+              setStore({ planets: [...store.planets, responseJason.result] });
+              /* console.log(store.planets); */
+            });
+          }
+        } catch (error) {
+          console.log("Error al solicitar la informacion: ", error);
+        }
+      },
+
+      // TRAE INFORMACION DE LOS PERSONAJES
+      getPeople: async () => {
+        const store = getStore();
+        const url = "https://www.swapi.tech/api/people/";
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+          });
+          if (response.ok) {
+            const body = await response.json();
+            body.results.forEach(async (element) => {
+              let responseElement = await fetch(url + element.uid);
+              let responseJason = await responseElement.json();
+              /* console.log(responseJason.result.properties); */
+              setStore({ people: [...store.people, responseJason.result] });
+              /* console.log(store.people); */
+            });
+          }
+        } catch (error) {
+          console.log("Error al solicitar la informacion: ", error);
+        }
+      },
+
+      // TRAE INFORMACION DE LOS VEHICULOS
+      getVehicle: async () => {
+        const store = getStore();
+        const url = "https://www.swapi.tech/api/vehicles/";
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+          });
+          if (response.ok) {
+            const body = await response.json();
+            body.results.forEach(async (element) => {
+              let responseElement = await fetch(url + element.uid);
+              let responseJason = await responseElement.json();
+              /* console.log(responseJason.result.properties); */
+              setStore({ vehicles: [...store.vehicles, responseJason.result] });
+              /* console.log(store.vehicles); */
+            });
+          }
+        } catch (error) {
+          console.log("Error al solicitar la informacion: ", error);
+        }
+      },
+
+      favorite: (favoritos) => {
+        const store = getStore();
+        if (store.favorites.includes(favoritos) == false) {
+          setStore({ favorites: [...store.favorites, favoritos] });
+          return;
+        }
+      },
+
+      DeleteFavorite: (favorito) => {
+        const store = getStore();
+        const favoritos = store.favorites.filter((elemento) => {
+          return favorito !== elemento;
+        });
+        setStore({ favorites: favoritos });
       },
     },
   };

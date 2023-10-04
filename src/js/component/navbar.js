@@ -1,46 +1,55 @@
-import { Link } from "react-router-dom";
-import logo from "../../img/logo.png";
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import logoStart from "../../img/Star-Wars-Logo.webp";
 import { Context } from "../store/appContext";
 
 export const Navbar = () => {
   const { store, actions } = useContext(Context);
+  const fav = store.favorites.length;
+
+  const handleDelete = (event, favorite) => {
+    event.stopPropagation(); // evita que se cierre el menu de favoritos al darle clic a eliminar
+    actions.DeleteFavorite(favorite);
+  };
 
   return (
-    <nav className="navbar navbar-light bg-white mb-3">
-      <Link className="navbar-brand" to="/">
-        <p className=" m-1">
-          <img src={logo} style={{ height: "100px", width: "100px" }} />
-        </p>
-      </Link>
-      <div className="ml-auto">
-        <div className="dropdown">
+    <nav className="navbar bg-body-tertiary">
+      <div className="container">
+        {/* LOGO */}
+        <Link className="navbar-brand" to={"/"}>
+          <img src={logoStart} alt="StarWars" className="logo" />
+        </Link>
+        {/*  // FAVORITE BUTTON */}
+        <div className="btn-group">
           <button
-            className="btn btn-primary dropdown-toggle d-flex  "
             type="button"
+            className="btn btn-primary dropdown-toggle"
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            Favorites{" "}
-            <div className="bg-danger px-1 mx-1 rounded d-flex justify-content-center">
-              {store.contador}
-            </div>
+            Favoritos
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {fav}
+            </span>
           </button>
-
           <ul className="dropdown-menu">
-            {store.listado.length == 0 ? (
-              <li>Empty Favorites !</li>
+            {fav === 0 ? (
+              <p className="m-2">
+                <strong>(empty)</strong>
+              </p>
             ) : (
-              store.listado.map((item, index) => {
+              store.favorites.map((favorite, index) => {
                 return (
-                  <li key={index}>
-                    <a className="dropdown-item " href="#">
-                      {item}
-                      <span
-                        className="fa fa-trash fa-fw text-dark "
-                        onClick={() => actions.eliminado(item)}
-                      ></span>
-                    </a>{" "}
+                  <li key={index} className="d-flex justify-content-between">
+                    <span className="m-1">{favorite}</span>
+                    <button
+                      className="btn btn-primary m-1"
+                      onClick={(event) => {
+                        handleDelete(event, favorite);
+                      }}
+                    >
+                      <i className="fa-solid fa-trash"></i>
+                    </button>
                   </li>
                 );
               })
